@@ -17,3 +17,10 @@ export async function fetchPublicPosts({
 
   return apiRequest(`/posts?${params.toString()}`);
 }
+
+// Public post details: GET /api/posts/:id (only if published)
+export async function fetchPublicPostById(postId) {
+  return apiRequest(`/posts/${postId}`, {
+    method: "GET",
+  });
+}
