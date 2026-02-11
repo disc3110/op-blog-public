@@ -8,3 +8,10 @@ export async function fetchCommentsForPost(postId, { page = 1, pageSize = 20 } =
 
   return apiRequest(`/posts/${postId}/comments?${params.toString()}`);
 }
+
+export async function createComment(postId, content) {
+  return apiRequest(`/posts/${postId}/comments`, {
+    method: "POST",
+    body: JSON.stringify({ content }),
+  });
+}

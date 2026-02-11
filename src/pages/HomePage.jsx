@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchPublicPosts } from "../services/postService";
 import PostCard from "../components/PostCard";
+import PublicNavbar from "../components/PublicNavbar";
 
 function HomePage() {
   const [posts, setPosts] = useState([]);
@@ -54,6 +55,7 @@ function HomePage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
+      <PublicNavbar />
       <div className="max-w-5xl mx-auto px-4 py-8">
         <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
