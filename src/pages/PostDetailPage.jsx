@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { fetchPublicPostById } from "../services/postService";
-import { fetchCommentsForPost } from "../services/commentService";
+import PublicNavbar from "../components/PublicNavbar";
+import { fetchCommentsForPost, createComment } from "../services/commentService";
+import { useAuth } from "../hooks/useAuth";
 
 function formatDateTime(dateStr) {
   try {
@@ -16,9 +18,13 @@ function PostDetailPage() {
   const navigate = useNavigate();
   const postId = Number(id);
 
+  const { user } = useAuth();
+
   const [post, setPost] = useState(null);
   const [postLoading, setPostLoading] = useState(true);
   const [postError, setPostError] = useState("");
+  const [newComment, setNewComment] = useState("");
+  const [submittingComment, setSubmittingComment] = useState(false);
 
   const [comments, setComments] = useState([]);
   const [commentsMeta, setCommentsMeta] = useState({
@@ -93,8 +99,26 @@ function PostDetailPage() {
     loadComments({ page: nextPage });
   }
 
+  async function handleSubmitComment(e) {
+    e.preventDefault();
+    if (!user || !newComment.trim()) return;
+
+    setSubmittingComment(true);
+    try {
+      await createComment(postId, newComment.trim());
+      setNewComment("");
+      await loadComments({ page: 1 }); // refresh from first page
+    } catch (err) {
+      console.error(err);
+      setCommentsError(err.message || "Failed to add comment");
+    } finally {
+      setSubmittingComment(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
+      <PublicNavbar />
       <div className="max-w-3xl mx-auto px-4 py-8">
         <header className="mb-6 flex items-center justify-between gap-4">
           <Link
@@ -147,6 +171,43 @@ function PostDetailPage() {
                 <div className="mb-3 rounded-md bg-red-500/10 border border-red-500 text-red-200 px-3 py-2 text-xs">
                   {commentsError}
                 </div>
+              )}
+
+              {user ? (
+                <form onSubmit={handleSubmitComment} className="mb-4 space-y-2">
+                  <label className="block text-sm text-slate-200">
+                    Add a comment
+                  </label>
+                  <textarea
+                    className="w-full rounded-md bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    rows={3}
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Write your thoughts…"
+                  />
+                  <button
+                    type="submit"
+                    disabled={submittingComment || !newComment.trim()}
+                    className="rounded-md bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 disabled:opacity-60 px-4 py-2 text-sm font-medium text-white"
+                  >
+                    {submittingComment ? "Posting..." : "Post comment"}
+                  </button>
+                </form>
+              ) : (
+                <p className="mb-4 text-xs text-slate-400">
+                  You must{" "}
+                  <Link to="/login" className="text-blue-400 hover:text-blue-300">
+                    log in
+                  </Link>{" "}
+                  or{" "}
+                  <Link
+                    to="/register"
+                    className="text-blue-400 hover:text-blue-300"
+                  >
+                    sign up
+                  </Link>{" "}
+                  to leave a comment.
+                </p>
               )}
 
               <div className="rounded-lg border border-slate-800 bg-slate-900/60">
