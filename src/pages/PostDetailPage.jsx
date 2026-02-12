@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { fetchPublicPostById } from "../services/postService";
+import { fetchPublicPostById, likePost, unlikePost } from "../services/postService";
 import PublicNavbar from "../components/PublicNavbar";
 import { fetchCommentsForPost, createComment } from "../services/commentService";
 import { useAuth } from "../hooks/useAuth";
@@ -23,9 +23,9 @@ function PostDetailPage() {
   const [post, setPost] = useState(null);
   const [postLoading, setPostLoading] = useState(true);
   const [postError, setPostError] = useState("");
+
   const [newComment, setNewComment] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
-
   const [comments, setComments] = useState([]);
   const [commentsMeta, setCommentsMeta] = useState({
     page: 1,
@@ -35,6 +35,10 @@ function PostDetailPage() {
   });
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [commentsError, setCommentsError] = useState("");
+
+  const [likesCount, setLikesCount] = useState(0);
+  const [likedByMe, setLikedByMe] = useState(false);
+  const [likeLoading, setLikeLoading] = useState(false);
 
   useEffect(() => {
     if (Number.isNaN(postId)) {
@@ -47,10 +51,19 @@ function PostDetailPage() {
       setPostError("");
       try {
         const data = await fetchPublicPostById(postId);
+
+        if (!data || !data.post) {
+          throw new Error("Post not found");
+        }
+
+        console.log("Fetched post data:", data);
         setPost(data.post);
+        setLikesCount(data.post._count?.likes ?? 0);
+        setLikedByMe(Boolean(data.post.likedByCurrentUser));
       } catch (err) {
         console.error(err);
         setPostError(err.message || "Failed to load post");
+        setPost(null);
       } finally {
         setPostLoading(false);
       }
@@ -116,6 +129,40 @@ function PostDetailPage() {
     }
   }
 
+  async function handleToggleLike() {
+    if (!user || likeLoading || !postId) return;
+
+    setLikeLoading(true);
+
+    try {
+      if (likedByMe) {
+        const res = await unlikePost(postId);
+
+        if (typeof res?.likesCount === "number") {
+          setLikesCount(res.likesCount);
+        } else {
+          setLikesCount((prev) => Math.max(0, prev - 1));
+        }
+
+        setLikedByMe(false);
+      } else {
+        const res = await likePost(postId);
+
+        if (typeof res?.likesCount === "number") {
+          setLikesCount(res.likesCount);
+        } else {
+          setLikesCount((prev) => prev + 1);
+        }
+
+        setLikedByMe(true);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLikeLoading(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
       <PublicNavbar />
@@ -152,8 +199,7 @@ function PostDetailPage() {
                 <span>{formatDateTime(post.createdAt)}</span>
                 <span>·</span>
                 <span>
-                  {post._count?.comments ?? 0} comments ·{" "}
-                  {post._count?.likes ?? 0} likes
+                  {commentsMeta.totalItems} comments · {likesCount} likes
                 </span>
               </div>
 
@@ -162,6 +208,31 @@ function PostDetailPage() {
                   {post.content}
                 </p>
               </div>
+
+              <div className="mb-4 my-4">
+                {user ? (
+                  <button
+                    type="button"
+                    onClick={handleToggleLike}
+                    disabled={likeLoading}
+                    className={[
+                      "inline-flex items-center rounded-xl px-4 py-1.5 text-xs font-medium border transition",
+                      likedByMe
+                        ? "bg-blue-600 border-blue-500 text-white"
+                        : "bg-slate-900 border-slate-700 text-slate-100 hover:bg-slate-800",
+                      likeLoading ? "opacity-60 cursor-not-allowed" : "",
+                    ].join(" ")}
+                  >
+                    {likedByMe ? "Unlike" : "Like"}
+                  </button>
+                ) : (
+                  <p className="text-[11px] text-slate-400">
+                    Log in or sign up to like this post.
+                  </p>
+                )}
+              </div>
+
+              
             </article>
 
             <section>
@@ -217,8 +288,7 @@ function PostDetailPage() {
                   </p>
                 ) : comments.length === 0 ? (
                   <p className="px-4 py-4 text-xs text-slate-400">
-                    No comments yet. Be the first to comment once we add
-                    public login!
+                    No comments yet. Be the first to comment!
                   </p>
                 ) : (
                   <>

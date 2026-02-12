@@ -24,3 +24,15 @@ export async function fetchPublicPostById(postId) {
     method: "GET",
   });
 }
+
+export async function likePost(postId) {
+  return apiRequest(`/posts/${postId}/like`, {
+    method: "POST",
+  });
+}
+
+export async function unlikePost(postId) {
+  return apiRequest(`/posts/${postId}/like`, {
+    method: "DELETE",
+  });
+}
