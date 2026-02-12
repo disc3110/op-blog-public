@@ -16,10 +16,23 @@ This app connects to the **OP Blog API** and allows users to:
 ## 🚀 Live Demo
 
 Public App: 
-Author Dashboard: https://op-blog-author.railway.internal
-Public Dashboard: https://op-blog-public.railway.internal
+Author Dashboard: https://op-blog-author-production.up.railway.app
+Public Dashboard: https://op-blog-public-production.up.railway.app
 
 Backend API: https://github.com/disc3110/op-blog-api
+
+
+You can log in using the following **mock author account**:
+
+```json
+{
+  "name": "Author User",
+  "email": "author@example.com",
+  "password": "author-password"
+}
+```
+
+This demo account has author permissions and can be used to explore all features of the dashboard.
 
 ---
 

@@ -6,12 +6,16 @@ import RegisterPage from "./pages/RegisterPage.jsx";
 import { useEffect } from "react";
 
 function App() {
+
+  console.log("App.jsx - running useEffect to check URL for token");
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
+    console.log("App.jsx - token from URL:", token);
 
     if (token) {
-      localStorage.setItem("token", token);
+      localStorage.setItem("authToken", token);
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);

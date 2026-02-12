@@ -4,7 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 function PublicNavbar() {
   const { user, logout, initializing } = useAuth();
   const location = useLocation();
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("authToken");
 
   const isAuthPage =
     location.pathname === "/login" || location.pathname === "/register";
@@ -25,7 +25,7 @@ function PublicNavbar() {
                 </span>
                 {user.role === "AUTHOR" || user.role === "ADMIN" ? (
                   <a
-                    href={`https://op-blog-author-production.up.railway.app?token=${token}`}
+                    href={`http://op-blog-author-production.up.railway.app?token=${token}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-xs text-blue-400 hover:text-blue-300"
