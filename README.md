@@ -1,16 +1,141 @@
-# React + Vite
+# 🌍 OP Blog – Public Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Public-facing React application for reading, commenting, and liking blog posts.
 
-Currently, two official plugins are available:
+This app connects to the **OP Blog API** and allows users to:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Browse published posts
+- View full post details
+- Like / unlike posts
+- Register and log in
+- Comment on posts
+- Like / unlike comments
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🚀 Live Demo
 
-## Expanding the ESLint configuration
+Public App: 
+Author Dashboard: https://op-blog-author.railway.internal
+Public Dashboard: https://op-blog-public.railway.internal
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Backend API: https://github.com/disc3110/op-blog-api
+
+---
+
+## 🧱 Tech Stack
+
+- **React (Vite)**
+- **React Router**
+- **TailwindCSS**
+- **JWT Authentication**
+- **REST API (Express + Prisma + PostgreSQL)**
+
+---
+
+## 🧠 Architecture Overview
+
+This project is part of a 3‑application system:
+
+1. **OP Blog API** – Express backend handling authentication, posts, comments, and likes.
+2. **OP Blog Public (this repo)** – Public UI for readers.
+3. **OP Blog Author Dashboard** – Admin/author interface for managing posts and comments.
+
+Authentication is handled via JWT. When a user logs in, the token is stored in localStorage and attached to API requests using the `Authorization: Bearer <token>` header.
+
+Public GET routes support optional authentication to allow:
+
+- Displaying `likedByCurrentUser`
+- Showing user-specific UI states
+
+---
+
+## 📦 Features
+
+### 📰 Posts
+- Paginated list of published posts
+- Search support
+- Author filtering
+- Post detail view
+- Like / Unlike functionality
+
+### 💬 Comments
+- Paginated comments
+- Create comment (authenticated users)
+- Like / Unlike comments
+- `likedByCurrentUser` state preserved after refresh
+
+### 🔐 Authentication
+- Register
+- Login
+- Persistent session via JWT
+
+---
+
+## 🛠 Installation
+
+```bash
+# Clone repository
+npm install
+
+# Start development server
+npm run dev
+```
+
+Make sure the backend API is running and the VITE_API_URL environment variable is configured correctly.
+
+Example `.env`:
+
+```
+VITE_API_URL=http://localhost:3000/api
+```
+
+---
+
+## 📂 Project Structure
+
+```
+src/
+ ├── components/
+ │     ├── CommentItem.jsx
+ │     ├── PostCard.jsx
+ │     └── PublicNavbar.jsx
+ ├── pages/
+ │     ├── HomePage.jsx
+ │     └── PostDetailPage.jsx
+ ├── services/
+ │     ├── apiClient.js
+ │     ├── postService.js
+ │     └── commentService.js
+ ├── hooks/
+ │     └── useAuth.js
+ └── context/
+       └── AuthContext.jsx
+```
+
+---
+
+## 🔗 Related Repositories
+
+- Backend API: https://github.com/disc3110/op-blog-api
+- Author Dashboard: https://github.com/disc3110/op-blog-author
+
+---
+
+## 🎯 Future Improvements
+
+- Optimistic UI updates for comment likes
+- Infinite scroll for comments
+- Sorting comments by newest / most liked
+- UI animations and micro‑interactions
+- Full SSO between public and author apps
+
+---
+
+## 📄 License
+
+Personal portfolio project.
+
+---
+
+Built as a full‑stack learning project to demonstrate production‑style architecture with separated frontends and a centralized API.
