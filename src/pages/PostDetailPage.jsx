@@ -4,6 +4,8 @@ import { fetchPublicPostById, likePost, unlikePost } from "../services/postServi
 import PublicNavbar from "../components/PublicNavbar";
 import { fetchCommentsForPost, createComment } from "../services/commentService";
 import { useAuth } from "../hooks/useAuth";
+import { likeComment, unlikeComment } from "../services/commentService";
+import CommentItem from "../components/CommentItem";
 
 function formatDateTime(dateStr) {
   try {
@@ -163,6 +165,23 @@ function PostDetailPage() {
     }
   }
 
+  async function handleToggleCommentLike(commentId, liked) {
+  if (!user) return;
+
+  try {
+    if (liked) {
+      await unlikeComment(commentId);
+    } else {
+      await likeComment(commentId);
+    }
+
+    // Reload comments to sync state
+    await loadComments({ page: commentsMeta.page });
+  } catch (err) {
+    console.error(err);
+  }
+}
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
       <PublicNavbar />
@@ -294,21 +313,13 @@ function PostDetailPage() {
                   <>
                     <ul className="divide-y divide-slate-800">
                       {comments.map((comment) => (
-                        <li
+                        <CommentItem
                           key={comment.id}
-                          className="px-4 py-3 text-sm text-slate-100"
-                        >
-                          <p>{comment.content}</p>
-                          <div className="mt-1 text-[11px] text-slate-400 flex items-center gap-2 flex-wrap">
-                            <span>
-                              By {comment.author?.name || "Unknown user"}
-                            </span>
-                            <span>·</span>
-                            <span>{formatDateTime(comment.createdAt)}</span>
-                            <span>·</span>
-                            <span>{comment._count?.likes ?? 0} likes</span>
-                          </div>
-                        </li>
+                          comment={comment}
+                          user={user}
+                          onToggleLike={handleToggleCommentLike}
+                          formatDateTime={formatDateTime}
+                        />
                       ))}
                     </ul>
 
